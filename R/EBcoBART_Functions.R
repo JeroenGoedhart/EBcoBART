@@ -1,9 +1,10 @@
-#' #' Convenience function to correctly specify co-data matrix if X contains factor variables.
+#' Convenience function to correctly specify co-data matrix if X contains factor variables.
 #'
 #' The R package dbarts uses dummy encoding for factor variables so
-#' the co-data matrix should have co-data for each dummy. If co-data
-#' is only available for the factor as a whole, use this function
-#' to set-up the co-data in the right-format for the EBcoBART function
+#' the co-data matrix should contain co-data information for each dummy. If co-data
+#' is only available for the factor as a whole (e.g. factor belongs to a group),
+#' use this function #' to set-up the co-data in the right-format
+#' for the EBcoBART function
 #'
 #' @param X Explanatory variables. Should be a data.frame. The function is only
 #' useful when X contains factor variables.
@@ -13,8 +14,8 @@
 #' with dummies representing which group a explanatory variable belongs to.
 #' The number of rows of the co-data matrix should equal the number of columns of X
 #'
-#' @return A list object with X the explanatory variables with factors encoded as dummies
-#' and CoData the co-data matrix with now co-data for all dummy encoded factor variables.
+#' @return A list object with X: the explanatory variables with factors encoded as dummies
+#' and CoData: the co-data matrix with now co-data for all dummies.
 #' @export
 #'
 #' @examples p <- 15
@@ -32,6 +33,7 @@
 #' CoData <- Dat$CoData
 #'
 #'@author Jeroen M. Goedhart, \email{j.m.goedhart@@amsterdamumc.nl}
+#'
 Dat_EBcoBART <- function(X,CoData){
 
   ## ---------------------------------------------------------------------
@@ -560,6 +562,7 @@ EBcoBART <- function(Y,X,CoData, model,
   ## ---------------------------------------------------------------------
   ## Compute detph for all nodes, required for ..LikelihoodTreeStructure
   ## function
+  ## This function is coded by Vincent Dorie (author of dbarts R package)
   ## ---------------------------------------------------------------------
 
   getDepthRecurse <- function(tree, depth) {
