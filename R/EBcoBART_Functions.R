@@ -320,7 +320,7 @@ EBcoBART <- function(Y,X,CoData, model,
   for (i in 1:nIter) {
 
     if (Info==T){
-      print(paste("EM iteration",i,sep = " "))
+      cat("EM iteration ",i)
     }
 
     ### step 1: Fit BART model ###
@@ -345,25 +345,33 @@ EBcoBART <- function(Y,X,CoData, model,
                           splitprobs = probs,
                           combinechains = T)# hyperparameter that will be updated using EB and co-data
 
+      ## Estimate WAIC ##
+      Ypred = fit$yhat.train
+      LogLikMatrix = .LikelihoodCont(Ypred = Ypred, Y = Y, sigma = fit$sigma)
+      WAICVector[i] <- suppressWarnings(loo::waic(LogLikMatrix)$estimates[3,1])
+
+      if (Info==T){
+        cat("   WAIC equals: ",WAICVector[i], "\n")
+      }
+
+
+
       ## MCMC Convergence check ##
       if (i==1){
 
         if (Info==T){
-          print("Check convergence of mcmc chains")
+          cat("\n","Check convergence of mcmc chains")
         }
 
         samps=fit$sigma
         samps<-matrix(samps, nrow=ndpost,ncol = nchain, byrow = T)
         Rhat <- .MCMC_convergence(samps)
 
-        if (Info==T){
-          print(paste("Rhat equals: ",Rhat))
-        }
 
         remove(samps)
         if(Rhat<1.1){
           if (Info==T){
-            print("convergence okay")
+            cat(" <- convergence okay", "\n","\n")
           }
         } else {
           stop("Not converged yet, please change mcmc sampling settings")
@@ -371,14 +379,7 @@ EBcoBART <- function(Y,X,CoData, model,
       }
 
 
-      ## Estimate WAIC ##
-      Ypred = fit$yhat.train
-      LogLikMatrix = .LikelihoodCont(Ypred = Ypred, Y = Y, sigma = fit$sigma)
-      WAICVector[i] <- suppressWarnings(loo::waic(LogLikMatrix)$estimates[3,1])
 
-      if (Info==T){
-        print(paste("WAIC equals: ",WAICVector[i]))
-      }
     }
 
     if(model=="binary"){
@@ -400,32 +401,6 @@ EBcoBART <- function(Y,X,CoData, model,
                           splitprobs = probs,                # prob that variable is chosen for split
                           keeptrees = EB,             #set to True if updating alpha and k and to False if not
                           combinechains = T)
-
-      ## MCMC Convergence check
-      if (i==1){
-
-        if (Info==T){
-          print("Check convergence of mcmc chains")
-        }
-
-        samps=fit$yhat.train[,sample(1:length(Y),1)]
-        samps<-matrix(samps, nrow=ndpost,ncol = nchain, byrow = T)
-        Rhat <- .MCMC_convergence(samps)
-
-        if (Info==T){
-          print(paste("Rhat equals: ",Rhat))
-        }
-
-        remove(samps)
-        if(Rhat<1.1){
-          if (Info==T){
-            print("convergence okay")
-          }
-        } else {
-          stop("Not converged yet, please change mcmc sampling settings")
-        }
-      }
-
       ## Estimate WAIC
       Ypred = pnorm(fit$yhat.train)
       Ypred[which(Ypred==0)] <- .0000000000000001
@@ -434,12 +409,31 @@ EBcoBART <- function(Y,X,CoData, model,
       WAICVector[i] <- suppressWarnings(loo::waic(LogLikMatrix)$estimates[3,1])
 
       if (Info==T){
-        print(paste("WAIC equals: ",WAICVector[i]))
+        cat("    WAIC = ", WAICVector[i], "\n")
+      }
+
+      ## MCMC Convergence check
+      if (i==1){
+
+        if (Info==T){
+          cat("\n","Check convergence of mcmc chains")
+        }
+
+        samps=fit$yhat.train[,sample(1:length(Y),1)]
+        samps<-matrix(samps, nrow=ndpost,ncol = nchain, byrow = T)
+        Rhat <- .MCMC_convergence(samps)
+        remove(samps)
+        if(Rhat<1.1){
+          if (Info==T){
+            cat(" <- convergence okay", "\n","\n")
+          }
+        } else {
+          stop("Not converged yet, please change mcmc sampling settings")
+        }
       }
     }
+
     #### convergence check of EM algorithm
-
-
     if (WAICVector[i]>WAIC_Old) {
       EstProb = EstimatedProbs[i-1,]
       EstWAIC = WAIC_Old
@@ -448,6 +442,7 @@ EBcoBART <- function(Y,X,CoData, model,
         Estk = k_Update[i-1]
         EstAlpha = alpha_Update[i-1]
       }
+      message("EM algorithm converged at iteration ", i)
       break
     } else {
       WAIC_Old <- WAICVector[i]
@@ -491,8 +486,8 @@ EBcoBART <- function(Y,X,CoData, model,
 
 
     if (i==nIter){
-      print("EM algorithm not converged yet, consider increasing nIter")
-      print("Return estimates at last iteration")
+      message("EM algorithm not converged yet, consider increasing nIter")
+      message("Return estimates at last iteration")
       EstProb = EstimatedProbs[i,]
       EstWAIC = WAICVector[i]
       CodataModel <-  Codatamodels[[i]]
