@@ -2,7 +2,7 @@
 % Please edit documentation in R/EBcoBART_Functions.R
 \name{Dat_EBcoBART}
 \alias{Dat_EBcoBART}
-\title{#' Convenience function to correctly specify co-data matrix if X contains factor variables.}
+\title{Convenience function to correctly specify co-data matrix if X contains factor variables.}
 \usage{
 Dat_EBcoBART(X, CoData)
 }
@@ -17,14 +17,15 @@ with dummies representing which group a explanatory variable belongs to.
 The number of rows of the co-data matrix should equal the number of columns of X}
 }
 \value{
-A list object with X the explanatory variables with factors encoded as dummies
-and CoData the co-data matrix with now co-data for all dummy encoded factor variables.
+A list object with X: the explanatory variables with factors encoded as dummies
+and CoData: the co-data matrix with now co-data for all dummies.
 }
 \description{
 The R package dbarts uses dummy encoding for factor variables so
-the co-data matrix should have co-data for each dummy. If co-data
-is only available for the factor as a whole, use this function
-to set-up the co-data in the right-format for the EBcoBART function
+the co-data matrix should contain co-data information for each dummy. If co-data
+is only available for the factor as a whole (e.g. factor belongs to a group),
+use this function to set-up the co-data in the right-format
+for the EBcoBART function
 }
 \examples{
 p <- 15

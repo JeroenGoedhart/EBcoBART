@@ -105,9 +105,9 @@ sigma <- 1.0
 N <- 100
 p <- 500
 G <- 5   #number of groups
-CoDat = rep(1:G, rep(p/G,G))
+CoDat = rep(1:G, rep(p/G,G)) # specify grouping structure
 CoDat = data.frame(factor(CoDat))
-CoDat <- model.matrix(~0+., CoDat)
+CoDat <- model.matrix(~., CoDat) # encode grouping structure by dummies yourself (include intercept)
 colnames(CoDat)  = paste0("Group ",1:G)
 g <- function(x) {
  10 * sin(pi * x[,1] * x[,2]) + 20 * (x[,101] - 0.5)^2 + 10 * x[,102] + 10 * x[,3]
@@ -151,7 +151,7 @@ Ytr <- dat$Ytrain
 Xte <- as.matrix(dat$Xtest) # Xte should be matrix object
 Yte <- dat$Ytest
 CoDat <- dat$CoData
-CoDat <- model.matrix(~0+., CoDat) # encode grouping structure by dummies
+CoDat <- model.matrix(~., CoDat) # encode grouping structure by dummies yourself (include intercept)
 remove(dat)
 
 Fit <- EBcoBART(Y=Ytr,X=Xtr,CoData = CoDat, nIter = 15, model = "binary",

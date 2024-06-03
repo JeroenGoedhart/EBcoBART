@@ -3,7 +3,7 @@
 #' The R package dbarts uses dummy encoding for factor variables so
 #' the co-data matrix should contain co-data information for each dummy. If co-data
 #' is only available for the factor as a whole (e.g. factor belongs to a group),
-#' use this function #' to set-up the co-data in the right-format
+#' use this function to set-up the co-data in the right-format
 #' for the EBcoBART function
 #'
 #' @param X Explanatory variables. Should be a data.frame. The function is only
