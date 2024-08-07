@@ -90,7 +90,7 @@ The prior parameter estimates can then be used in your favorite BART R package t
 manually setting the splitting variable probability vector (dbarts and BARTMachine).
 }
 \description{
-Function that estimates the prior probabilities of variables getting selected in the splitting rules
+Function that estimates the prior probabilities of variables being selected in the splitting rules
 of Bayesian Additive Regression Trees (BART). Estimation is performed using empirical Bayes and co-data,
 i.e. external information on the explanatory variables.
 }

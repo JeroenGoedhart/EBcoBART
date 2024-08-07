@@ -75,7 +75,7 @@ Dat_EBcoBART <- function(X,CoData){
 
 #' Learning prior covariate weights for BART models using empirical Bayes and co-data.
 #'
-#' Function that estimates the prior probabilities of variables getting selected in the splitting rules
+#' Function that estimates the prior probabilities of variables being selected in the splitting rules
 #' of Bayesian Additive Regression Trees (BART). Estimation is performed using empirical Bayes and co-data,
 #' i.e. external information on the explanatory variables.
 #'
@@ -245,7 +245,7 @@ EBcoBART <- function(Y,X,CoData, model,
 
   # X: covariate model matrix, should be a matrix object. If X contains factor variables,
   # please consider Dat_EBcoBART function to set X and CoData matrix in the right format
-  # dbarts uses dummy encoding for factors(with dummies for each category and no intercept).
+  # dbarts uses dummy encoding for factors (with dummies for each category and no intercept).
   # This means that co-data is required for each dummy variable.
   # Dat_EBcoBART does that for you and also sets X in the right format for dbarts.
 
@@ -314,7 +314,9 @@ EBcoBART <- function(Y,X,CoData, model,
 
   if (EB == T){
     k_Update <- c()
+    k_Update[1] <- k
     alpha_Update <- c()
+    alpha_Update[1] <- alpha
   }
 
   for (i in 1:nIter) {
@@ -469,7 +471,7 @@ EBcoBART <- function(Y,X,CoData, model,
     ## Optional step: update other hyperparameters (alpha and k) of BART using Empirical Bayes ##
     if (EB == T) {
       trees <- dbarts::extract(fit,"trees",chainNum = c(1:nchain), sampleNum=c(base::sample(1:ndpost,0.25*ndpost,replace = F))) # tree structures, for computation, we only select a part of the tree
-      #trees <- extract(fit,"trees") # tree structures, for computation, we only select a part of the tree
+      #trees <- extract(fit,"trees") # tree structures, for computation, we only randomly select 25% of the posterior samples
 
       # Update leaf node parameter k
       k <- .EstimateLeafNode(Trees = trees, ntree = ntree, model = model)[2]
@@ -492,7 +494,7 @@ EBcoBART <- function(Y,X,CoData, model,
       EstWAIC = WAICVector[i]
       CodataModel <-  Codatamodels[[i]]
       if (EB == T) {
-        Estk = k_Update[1]
+        Estk = k_Update[i]
         EstAlpha = alpha_Update[i]
       }
     }
@@ -555,7 +557,7 @@ EBcoBART <- function(Y,X,CoData, model,
 .getDepth <- function(tree) {
 
   ## ---------------------------------------------------------------------
-  ## Compute detph for all nodes, required for ..LikelihoodTreeStructure
+  ## Compute detph for all nodes, required for .LikelihoodTreeStructure
   ## function
   ## This function is coded by Vincent Dorie (author of dbarts R package)
   ## ---------------------------------------------------------------------
