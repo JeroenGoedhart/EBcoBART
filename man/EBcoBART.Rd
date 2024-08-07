@@ -10,10 +10,10 @@ EBcoBART(
   CoData,
   model,
   nIter = 10,
-  EB = F,
+  EB = FALSE,
   Prob_Init = c(rep(1/ncol(X), ncol(X))),
-  Info = F,
-  Seed = T,
+  Info = FALSE,
+  Seed = TRUE,
   ndpost = 5000,
   nskip = 5000,
   nchain = 5,
@@ -22,7 +22,7 @@ EBcoBART(
   alpha = 0.95,
   beta = 2,
   k = 2,
-  sigest = sd(Y) * 0.667,
+  sigest = stats::sd(Y) * 0.667,
   sigdf = 10,
   sigquant = 0.75
 )
@@ -107,7 +107,8 @@ p <- 500
 G <- 5   #number of groups
 CoDat = rep(1:G, rep(p/G,G)) # specify grouping structure
 CoDat = data.frame(factor(CoDat))
-CoDat <- model.matrix(~., CoDat) # encode grouping structure by dummies yourself (include intercept)
+CoDat <- stats::model.matrix(~., CoDat) # encode grouping structure by dummies yourself
+#(include intercept)
 colnames(CoDat)  = paste0("Group ",1:G)
 g <- function(x) {
  10 * sin(pi * x[,1] * x[,2]) + 20 * (x[,101] - 0.5)^2 + 10 * x[,102] + 10 * x[,3]
@@ -116,11 +117,11 @@ X <- matrix(runif(N * p), N, p)#'
 Y <- g(X)+ rnorm(N, 0, sigma)
 
 Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
-                EB = F, Info = T, Seed = T,
+                EB = FALSE, Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
                 Prob_Init = rep(1/ncol(X),ncol(X)),
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs #estimated prior probabilities of variables getting selected in splitting rules
+EstProbs <- Fit$SplittingProbs #estimated prior weights of variables
 
 # The prior parameter estimate EstProbs can then be used
 # in your favorite BART fitting package
@@ -131,10 +132,11 @@ FinalFit <- dbarts::bart(x.train = X, y.train = Y, # training data
                         nskip = 5000,  # number of "warmup" samples to discard
                         nchain = 5,    # number of independent chains
                         ntree = 50,    # number of trees
-                        k = 2, base = .95, power = beta, # prior parameters tree
-                        sigest = .667*var(Y),sigdf = 10, sigquant = .75,  # prior parameters error variance
+                        k = 2, base = .95, power = 2, # prior parameters tree
+                        sigest = stats::sd(Y)*0.667, #prior error variance
+                        sigdf = 10, sigquant = .75,  #prior error variance
                         splitprobs = EstProbs,   # prior variable weights
-                        combinechains = T, verbose = F)
+                        combinechains = TRUE, verbose = FALSE)
 
 ###################################
 ### Binary response example ######
@@ -151,15 +153,16 @@ Ytr <- dat$Ytrain
 Xte <- as.matrix(dat$Xtest) # Xte should be matrix object
 Yte <- dat$Ytest
 CoDat <- dat$CoData
-CoDat <- model.matrix(~., CoDat) # encode grouping structure by dummies yourself (include intercept)
-remove(dat)
+CoDat <- stats::model.matrix(~., CoDat) # encode grouping structure by dummies
+#(include intercept)
+
 
 Fit <- EBcoBART(Y=Ytr,X=Xtr,CoData = CoDat, nIter = 15, model = "binary",
-                EB = T, Info = T, Seed = T,
+                EB = TRUE, Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
                 Prob_Init = rep(1/ncol(Xtr),ncol(Xtr)),
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs #estimated prior probabilities of variables getting selected in splitting rules
+EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
 alpha_EB <- Fit$alpha_est
 k_EB <- Fit$k_est
 
@@ -175,7 +178,7 @@ FinalFit <- dbarts::bart(x.train = Xtr, y.train = Ytr, # training data
                          ntree = 50,    # number of trees
                          k = k_EB, base = alpha_EB, power = 2, # prior parameters tree
                          splitprobs = EstProbs, # prior variable weights
-                         combinechains = T, verbose = F)
+                         combinechains = TRUE, verbose = FALSE)
 
 }
 \references{

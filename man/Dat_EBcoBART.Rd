@@ -31,12 +31,13 @@ for the EBcoBART function
 p <- 15
 n <- 30
 X <- matrix(runif(n*p),nrow = n, ncol = p) #all continuous variables
-Fact <- factor(sample(1:3,n,replace = T)) # factor variables
+Fact <- factor(sample(1:3,n,replace = TRUE)) # factor variables
 X <- cbind.data.frame(X,Fact)
 G <- 4   #number of groups for co-data
-CoDat <- rep(1:G, rep(ncol(X)/G,G)) # first 4 covariates in group 1, 2nd 4 covariates in group 2, etc..
+CoDat <- rep(1:G, rep(ncol(X)/G,G)) # first 4 covariates in group 1,
+#2nd 4 covariates in group 2, etc..
 CoDat <- data.frame(factor(CoDat))
-CoDat <- model.matrix(~0+., CoDat) # encode the grouping structure with dummies
+CoDat <- stats::model.matrix(~0+., CoDat) # encode the grouping structure with dummies
 Dat <- Dat_EBcoBART(X = X, CoData = CoDat) #
 X <- Dat$X
 CoData <- Dat$CoData
