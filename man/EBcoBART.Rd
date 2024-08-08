@@ -64,14 +64,14 @@ of the probability mass is placed. Thus, the specified sigquant is kept fixed
 and sigdf and sigest are updated. Defaults to False.}
 
 \item{Prob_Init}{Initial vector of splitting probabilities for
-explanatory variables X. #' Lenght should equal number of columns of X
+explanatory variables X. #' Length should equal number of columns of X
 (and number of rows in CoData).
 Defaults to 1/p, i.e. equal weight for each variable.}
 
 \item{Info}{Logical. Asks whether information about the algorithm progress
 should be printed. Defaults to FALSE.}
 
-\item{Seed}{Logical asking whether a seed should be set for reproduciblity.
+\item{Seed}{Logical asking whether a seed should be set for reproducibility.
 Defaults to TRUE.}
 
 \item{ndpost}{Number of posterior samples returned by dbarts after burn-in.
@@ -190,11 +190,11 @@ CoDat <- stats::model.matrix(~., CoDat) # encode grouping by dummies
 #(include intercept)
 
 
-Fit <- EBcoBART(Y=Ytr,X=Xtr,CoData = CoDat, nIter = 15, model = "binary",
+Fit <- EBcoBART(Y = Ytr, X = Xtr, CoData = CoDat, nIter = 15, model = "binary",
                 EB_k = TRUE, EB_alpha = TRUE, EB_sigma = FALSE,
                 Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
-                Prob_Init = rep(1/ncol(Xtr),ncol(Xtr)),
+                Prob_Init = rep(1/ncol(Xtr), ncol(Xtr)),
                 k = 2, alpha = .95, beta = 2)
 EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
 alpha_EB <- Fit$alpha_est

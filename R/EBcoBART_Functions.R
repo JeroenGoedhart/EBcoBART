@@ -55,8 +55,8 @@ Dat_EBcoBART <- function(X,CoData){
   # dummies The number of rows of the co-data matrix should equal the number of
   # columns of X
 
-  if (ncol(X) == 0 | nrow(X) == 0){stop("X not specified")}
-  if (ncol(CoData) == 0 | nrow(CoData) == 0){stop("CoData  not specified")}
+  if (ncol(X) == 0 || nrow(X) == 0){stop("X not specified")}
+  if (ncol(CoData) == 0 || nrow(CoData) == 0){stop("CoData  not specified")}
   if (!(is.data.frame(X))){stop("X should be specified as data.frame)")}
 
   if(ncol(X) != nrow(CoData)){
@@ -111,12 +111,12 @@ Dat_EBcoBART <- function(X,CoData){
 #' of the probability mass is placed. Thus, the specified sigquant is kept fixed
 #' and sigdf and sigest are updated. Defaults to False.
 #' @param Prob_Init Initial vector of splitting probabilities for
-#' explanatory variables X. #' Lenght should equal number of columns of X
+#' explanatory variables X. #' Length should equal number of columns of X
 #' (and number of rows in CoData).
 #' Defaults to 1/p, i.e. equal weight for each variable.
 #' @param Info Logical. Asks whether information about the algorithm progress
 #' should be printed. Defaults to FALSE.
-#' @param Seed Logical asking whether a seed should be set for reproduciblity.
+#' @param Seed Logical asking whether a seed should be set for reproducibility.
 #' Defaults to TRUE.
 #' @param ndpost Number of posterior samples returned by dbarts after burn-in.
 #' Same as in dbarts. #' Defaults to 5000.
@@ -221,11 +221,11 @@ Dat_EBcoBART <- function(X,CoData){
 #' #(include intercept)
 #'
 #'
-#' Fit <- EBcoBART(Y=Ytr,X=Xtr,CoData = CoDat, nIter = 15, model = "binary",
+#' Fit <- EBcoBART(Y = Ytr, X = Xtr, CoData = CoDat, nIter = 15, model = "binary",
 #'                 EB_k = TRUE, EB_alpha = TRUE, EB_sigma = FALSE,
 #'                 Info = TRUE, Seed = TRUE,
 #'                 nchain = 5, nskip = 1000, ndpost = 1000,
-#'                 Prob_Init = rep(1/ncol(Xtr),ncol(Xtr)),
+#'                 Prob_Init = rep(1/ncol(Xtr), ncol(Xtr)),
 #'                 k = 2, alpha = .95, beta = 2)
 #' EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
 #' alpha_EB <- Fit$alpha_est
@@ -266,7 +266,7 @@ EBcoBART <- function(Y,X,CoData, model,
                      EB_k = FALSE,
                      EB_alpha = FALSE,
                      EB_sigma = FALSE,
-                     Prob_Init = c(rep(1/ncol(X),ncol(X))),
+                     Prob_Init = c(rep(1 / ncol(X), ncol(X))),
                      Info = FALSE, Seed = TRUE,
                      ndpost = 5000,
                      nskip = 5000,
@@ -275,7 +275,7 @@ EBcoBART <- function(Y,X,CoData, model,
                      ntree = 50,
                      alpha = .95, beta = 2, k = 2,
                      sigest = stats::sd(Y)*0.667, sigdf = 10, sigquant = .75
-){
+) {
   ## ---------------------------------------------------------------------
   ## Co-data guided Empirical Bayes estimates of splitting probabilities of
   ## BART model
@@ -322,7 +322,7 @@ EBcoBART <- function(Y,X,CoData, model,
 
 
   # control statements
-  if(!(model == "continuous" | model == "binary")){
+  if(!(model == "continuous" || model == "binary")) {
     stop("model should be specified as continuous or binary")}
   if (!(is.logical(EB_k))) {
     stop("EB_k is not logical, specify as either TRUE or FALSE")}
@@ -332,36 +332,37 @@ EBcoBART <- function(Y,X,CoData, model,
     stop("EB_sigma is not logical, specify as either TRUE or FALSE")}
   if (model == "binary") {
     EB_sigma <- FALSE} #error variance only for continuous outcome
-  if (ncol(X) == 0 | nrow(X) == 0){stop("X not specified")}
-  if (ncol(CoData) == 0 | nrow(CoData) == 0){stop("CoData  not specified")}
-  if (length(Y) == 0){stop("Y vector is empty")}
+  if (ncol(X) == 0 || nrow(X) == 0) {stop("X not specified")}
+  if (ncol(CoData) == 0 || nrow(CoData) == 0) {stop("CoData  not specified")}
+  if (length(Y) == 0) {stop("Y vector is empty")}
 
   if(!(is.numeric(Y))) {stop("Y is not a numeric. If Y is binary please specify
                              it as numeric vector coded with 0 and 1")}
-  if (!(is.matrix(X))){stop("X should be specified as matrix")}
-  if(!(is.matrix(CoData))){stop("CoData should be specified as a matrix.
+  if (!(is.matrix(X))) {stop("X should be specified as matrix")}
+  if(!(is.matrix(CoData))) {stop("CoData should be specified as a matrix.
                                 Please encode dummies yourself")}
 
 
-  if (model=="continuous" & length(unique(Y)) < 3){
+  if (model == "continuous" && length(unique(Y)) < 3) {
     stop("Y has less than 3 distinct values
          while model = continuous is specified")}
-  if (model=="binary" & !all(Y==1 | Y== 0)){
+  if (model == "binary" && !all(Y == 1 || Y == 0)) {
     stop("Binary model, specify binary response as numeric coded with 0 and 1")}
-  if(ncol(X) != nrow(CoData)){
+  if(ncol(X) != nrow(CoData)) {
     stop("number of columns of X should equal number of rows of CoData")}
-  if(!all(Prob_Init > 0 & Prob_Init < 1)){
+  if(!all(Prob_Init > 0 && Prob_Init < 1)) {
     stop("All prior splitting probabilities in Prob_Init
          should be between 0 and 1")}
-  if(base::sum(Prob_Init) != 1){stop("Sum of Prob_Init should equal 1")}
+  if(base::sum(Prob_Init) != 1) {stop("Sum of Prob_Init should equal 1")}
 
 
-  if(nchain<3){stop("Use at least 3 independent chains")}
-  if(!all(c(alpha,beta,k,nchain,ndpost,nskip,nIter,keepevery,ntree)>0)){
-    stop("Check if input for bart are all positive numerics")}
+  if(nchain < 3) {stop("Use at least 3 independent chains")}
+  if(!all(c(alpha, beta, k, nchain, ndpost, nskip, nIter, keepevery, ntree) > 0)) {
+    stop("Check if input for bart are all positive numerics")
+  }
 
   ### check if co-data has missing values ###
-  if(sum(is.na(CoData))>0){
+  if(sum(is.na(CoData)) > 0){
     stop(cat("CoData has missing values,
              take care of these yourself\nMissing values in continuous co-data
              may be imputed with mean\nIf multiple (>10) genes have
@@ -403,7 +404,7 @@ EBcoBART <- function(Y,X,CoData, model,
 
   for (i in seq_len(nIter)) {
 
-    if (Info==TRUE){
+    if (Info == TRUE){
       cat("EM iteration ",i)
     }
 
@@ -413,7 +414,7 @@ EBcoBART <- function(Y,X,CoData, model,
     if(model == "continuous"){
 
       if(Seed){
-        set.seed(4*i^2+202+3*i)
+        set.seed(4 * i^2 + 202 + 3 * i)
       }
 
       fit <- dbarts::bart(x.train = X, y.train = Y,
@@ -441,13 +442,13 @@ EBcoBART <- function(Y,X,CoData, model,
 
 
       ## MCMC Convergence check ##
-      if (i==1){
+      if (i == 1){
 
-        if (Info==TRUE){
+        if (Info == TRUE){
           cat("\n","Check convergence of mcmc chains")
         }
 
-        samps<-matrix(fit$sigma, nrow=ndpost,ncol = nchain, byrow = TRUE)
+        samps<-matrix(fit$sigma, nrow = ndpost,v ncol = nchain, byrow = TRUE)
         Rhat <- .MCMC_convergence(samps)
 
         if(Rhat < 1.1){
@@ -467,10 +468,10 @@ EBcoBART <- function(Y,X,CoData, model,
       }
     }
 
-    if(model=="binary"){
+    if(model == "binary"){
 
       if(Seed){
-        set.seed(4*i^2+202+3*i)
+        set.seed(4 * i^2 + 202 + 3 * i)
       }
 
       fit <- dbarts::bart(x.train = X, y.train = Y,
@@ -487,8 +488,8 @@ EBcoBART <- function(Y,X,CoData, model,
                           combinechains = TRUE)
       ## Estimate WAIC
       Ypred <- stats::pnorm(fit$yhat.train)
-      Ypred[which(Ypred==0)] <- .0000000000000001
-      Ypred[which(Ypred==1)] <- .9999999999999999
+      Ypred[which(Ypred == 0)] <- .0000000000000001
+      Ypred[which(Ypred == 1)] <- .9999999999999999
       LogLikMatrix <- .LikelihoodBin(Ypred = Ypred, Y = Y)
       WAICVector[i] <- suppressWarnings(loo::waic(LogLikMatrix)$estimates[3,1])
 
@@ -499,12 +500,12 @@ EBcoBART <- function(Y,X,CoData, model,
       ## MCMC Convergence check
       if (i == 1){
 
-        if (Info==TRUE){
+        if (Info == TRUE){
           cat("\n","Check convergence of mcmc chains")
         }
 
         samps <- fit$yhat.train[,sample(seq_len(length(Y)),1)]
-        samps <- matrix(samps, nrow=ndpost,ncol = nchain, byrow = TRUE)
+        samps <- matrix(samps, nrow = ndpost,ncol = nchain, byrow = TRUE)
         Rhat <- .MCMC_convergence(samps)
         remove(samps)
         if(Rhat < 1.1){
@@ -518,7 +519,7 @@ EBcoBART <- function(Y,X,CoData, model,
     }
 
     #### convergence check of EM algorithm
-    if (WAICVector[i]>WAIC_Old) {
+    if (WAICVector[i] > WAIC_Old) {
       EstProb <- EstimatedProbs[i-1,]
       EstWAIC <- WAIC_Old
       CodataModel <-  Codatamodels[[i-1]]
@@ -546,16 +547,16 @@ EBcoBART <- function(Y,X,CoData, model,
     # obtain average number of times each variable occurs in the splitting rules
     VarsUsed <- base::colSums(fit$varcount)
     # count of each variable occurring in the splitting rules
-    VarsUsed <- VarsUsed/base::sum(VarsUsed)
+    VarsUsed <- VarsUsed / base::sum(VarsUsed)
     # normalize count of each variable to probabilities = pure EB updates
     # of hyperparameter S
 
     ### STEP 2: Fit co-data model ###
     coDataModel <- stats::glm(VarsUsed ~.-1,
-                       data=CoData,family = stats::quasibinomial) # the model
+                       data = CoData,family = stats::quasibinomial) # the model
 
     Codatamodels[[i]] <- coDataModel
-    probs <- stats::predict(coDataModel, type="response", newdata = CoData)
+    probs <- stats::predict(coDataModel, type = "response", newdata = CoData)
     # estimating the co-data moderated estimates of hyperparameter S
     probs[is.na(probs)] <- 0
     probs <- unname(probs)
@@ -563,10 +564,10 @@ EBcoBART <- function(Y,X,CoData, model,
     EstimatedProbs[i+1,] <- probs
 
     ## Optional step: update other hyperparameters of BART using EB ##
-    if (EB_k == TRUE | EB_alpha == TRUE) {
+    if (EB_k == TRUE || EB_alpha == TRUE) {
 
-      trees <- dbarts::extract(fit,"trees",chainNum = c(1:nchain),
-                               sampleNum=c(base::sample(1:ndpost,0.25*ndpost,
+      trees <- dbarts::extract(fit, "trees", chainNum = c(1:nchain),
+                               sampleNum=c(base::sample(1:ndpost, 0.25 * ndpost,
                                                         replace = FALSE)))
       #for computation, we only randomly select 25% of the posterior samples
 
@@ -579,8 +580,8 @@ EBcoBART <- function(Y,X,CoData, model,
         trees <- trees[c("tree", "sample", "chain", "n","var","value" )]
         trees$depth <- unname(unlist(
           by(trees, trees[,c("tree", "sample", "chain")], .getDepth)))
-        alpha <- stats::optim(alpha,.LikelihoodTreeStructure,
-                              beta = beta, Trees=trees,
+        alpha <- stats::optim(alpha, .LikelihoodTreeStructure,
+                              beta = beta, Trees = trees,
                               method = 'Brent',
                               lower = .00001, upper = .9999999)$par
         alpha_Update[i] <- alpha
@@ -648,19 +649,19 @@ EBcoBART <- function(Y,X,CoData, model,
   if (!(is.matrix(Samples))) {
     stop("Samples should be specified as matrix with
          nsample rows and nchain columns")}
-  if(base::nrow(Samples)<base::ncol(Samples)){
+  if(base::nrow(Samples) < base::ncol(Samples)){
     print("Are you sure Samples has nsample rows and nchain columns")}
   Rhat <- posterior::rhat(Samples)
   return(Rhat)
 }
 
-.LikelihoodBin <- function(Ypred,Y){
+.LikelihoodBin <- function(Ypred,Y) {
 
   ## ---------------------------------------------------------------------
   ## Compute likelihood for mcmc samples for binary response
   ## ---------------------------------------------------------------------
 
-  result <- apply(Ypred,1, function(x) Y*log(x)+(1-Y)*log(1-x))
+  result <- apply(Ypred, 1, function(x) Y * log(x) + (1 - Y) * log(1 - x))
   return(t(result))
 }
 
@@ -670,8 +671,8 @@ EBcoBART <- function(Y,X,CoData, model,
   ## Compute likelihood for mcmc samples for continuous response
   ## ---------------------------------------------------------------------
 
-  loglik <- -(0.5*(1/sigma^2))*
-    (base::sweep(Ypred,2,Y)^2)-.5*log(sigma^2)-.5*log(2*pi)
+  loglik <- -(0.5 * (1 / sigma ^ 2))*
+    (base::sweep(Ypred, 2, Y) ^ 2) - .5 * log(sigma ^ 2)- .5 * log(2 * pi)
   return(loglik)
 }
 
@@ -717,8 +718,8 @@ EBcoBART <- function(Y,X,CoData, model,
   ## likelihood for optimization of tree structure parameter alpha
   ## ---------------------------------------------------------------------
 
-  LogLike <- ifelse(Trees$var == -1,log(1-alpha*(1+Trees$depth)^(-beta)),
-                    log(alpha*(1+Trees$depth)^(-beta)))
+  LogLike <- ifelse(Trees$var == -1,log(1-alpha * (1 + Trees$depth) ^ (-beta)),
+                    log(alpha * (1 + Trees$depth) ^ (-beta)))
   S <- .FiniteSum(LogLike)
   return(-S)
 }
@@ -729,22 +730,23 @@ EBcoBART <- function(Y,X,CoData, model,
   ## Estimate leaf node prior parameter k from tree output
   ## ---------------------------------------------------------------------
 
-  if(!(model == "continuous" || model =="binary")){
-    stop("model should be specified as continuous or binary")}
+  if(!(model == "continuous" || model == "binary")) {
+    stop("model should be specified as continuous or binary")
+  }
 
-  ids <- which(Trees$var==-1) #check which rows correspond to leaf nodes
+  ids <- which(Trees$var == -1) #check which rows correspond to leaf nodes
   samples <- Trees$value[ids] #obtain samples of leaf nodes
-  varhat <- (1/length(samples))*.FiniteSum(samples^2) #maximum likelihood
+  varhat <- (1 / length(samples)) * .FiniteSum(samples^2) #maximum likelihood
   # estimate of variance for known mean (equals 0)
 
-  if (model == "continuous"){cnst <- 0.5}
-  if (model == "binary"){cnst <- 3}
+  if (model == "continuous") {cnst <- 0.5}
+  if (model == "binary") {cnst <- 3}
 
-  k_hat <- cnst/(sqrt(varhat)*sqrt(ntree))
-  return(c(varhat=varhat,k_hat=k_hat))
+  k_hat <- cnst / (sqrt(varhat) * sqrt(ntree))
+  return(c(varhat = varhat,k_hat = k_hat))
 }
 
-.EstSigma <- function(sigma, quant){
+.EstSigma <- function(sigma, quant) {
 
   ## -----------------------------------------------------------------------
   ## Estimate error variance parameters df and sigest from posterior samples
@@ -754,8 +756,8 @@ EBcoBART <- function(Y,X,CoData, model,
   HypEsts <- univariateML::mlinvgamma(sigma)
   shape <- unname(HypEsts[1])
   scale <- HypEsts[2]
-  nu <- 2*shape #transform parameters of invgamma to invchi^2
-  tau <- scale/shape
-  sigest <- extraDistr::qinvchisq(quant, nu = shape*2, tau = scale/shape)
-  return(c("df" = nu,"sigest" = sigest))
+  nu <- 2 * shape #transform parameters of invgamma to invchi^2
+  tau <- scale / shape
+  sigest <- extraDistr::qinvchisq(quant, nu = nu, tau = tau)
+  return(c("df" = nu, "sigest" = sigest))
 }
