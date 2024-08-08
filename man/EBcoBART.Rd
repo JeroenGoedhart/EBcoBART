@@ -84,7 +84,7 @@ Defaults to 0.75.}
 }
 \value{
 A list object with the estimated variable weights, i.e the probabilities that variables are selected
-in the splitting rules. Additionaly, the final co-data model is returned. If EB is set to TRUE, estimates of k and alpha
+in the splitting rules. Additionally, the final co-data model is returned. If EB is set to TRUE, estimates of k and alpha
 are also returned.
 The prior parameter estimates can then be used in your favorite BART R package that supports
 manually setting the splitting variable probability vector (dbarts and BARTMachine).

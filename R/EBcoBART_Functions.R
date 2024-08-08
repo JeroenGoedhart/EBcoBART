@@ -116,7 +116,7 @@ Dat_EBcoBART <- function(X,CoData){
 #' Defaults to 0.75.
 #'
 #' @return A list object with the estimated variable weights, i.e the probabilities that variables are selected
-#' in the splitting rules. Additionaly, the final co-data model is returned. If EB is set to TRUE, estimates of k and alpha
+#' in the splitting rules. Additionally, the final co-data model is returned. If EB is set to TRUE, estimates of k and alpha
 #' are also returned.
 #' The prior parameter estimates can then be used in your favorite BART R package that supports
 #' manually setting the splitting variable probability vector (dbarts and BARTMachine).
@@ -297,6 +297,10 @@ EBcoBART <- function(Y,X,CoData, model,
 
   if(nchain<3){stop("Use at least 3 independent chains")}
   if(!all(c(alpha,beta,k,nchain,ndpost,nskip,nIter,keepevery,ntree)>0)){stop("Check if input for bart are all positive numerics")}
+
+  ### check if co-data has missing values ###
+  if(sum(is.na(CoData))>0){stop(cat("CoData has missing values, take care of these yourself\nMissing values in continuous co-data may be imputed with mean\nIf multiple (>10) genes have unkown group, consider defining a new group with all genes having NAs\n"))}
+
 
   # Initialization
   p <- ncol(X)
