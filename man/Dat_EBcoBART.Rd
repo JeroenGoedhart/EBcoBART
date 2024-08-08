@@ -2,7 +2,8 @@
 % Please edit documentation in R/EBcoBART_Functions.R
 \name{Dat_EBcoBART}
 \alias{Dat_EBcoBART}
-\title{Convenience function to correctly specify co-data matrix if X contains factor variables.}
+\title{Convenience function to correctly specify co-data matrix if X contains
+factor variables.}
 \usage{
 Dat_EBcoBART(X, CoData)
 }
@@ -10,22 +11,23 @@ Dat_EBcoBART(X, CoData)
 \item{X}{Explanatory variables. Should be a data.frame. The function is only
 useful when X contains factor variables.}
 
-\item{CoData}{The co-data model matrix with co-data information on explanatory variables in X.
-Should be a matrix, so not a data.frame.
+\item{CoData}{The co-data model matrix with co-data information on
+explanatory variables in X. Should be a matrix, so not a data.frame.
 If grouping information is present, please encode this yourself using dummies
 with dummies representing which group a explanatory variable belongs to.
-The number of rows of the co-data matrix should equal the number of columns of X}
+The number of rows of the co-data matrix should equal the number
+of columns of X}
 }
 \value{
-A list object with X: the explanatory variables with factors encoded as dummies
-and CoData: the co-data matrix with now co-data for all dummies.
+A list object with X: the explanatory variables with factors encoded
+as dummies and CoData: the co-data matrix with now co-data for all dummies.
 }
 \description{
 The R package dbarts uses dummy encoding for factor variables so
-the co-data matrix should contain co-data information for each dummy. If co-data
-is only available for the factor as a whole (e.g. factor belongs to a group),
-use this function to set-up the co-data in the right-format
-for the EBcoBART function
+the co-data matrix should contain co-data information for each dummy.
+If co-data #' is only available for the factor as a whole
+(e.g. factor belongs to a group), #' use this function to set-up the co-data
+in the right-format #' for the EBcoBART function.
 }
 \examples{
 p <- 15
@@ -37,7 +39,8 @@ G <- 4   #number of groups for co-data
 CoDat <- rep(1:G, rep(ncol(X)/G,G)) # first 4 covariates in group 1,
 #2nd 4 covariates in group 2, etc..
 CoDat <- data.frame(factor(CoDat))
-CoDat <- stats::model.matrix(~0+., CoDat) # encode the grouping structure with dummies
+CoDat <- stats::model.matrix(~0+., CoDat) # encode the grouping structure
+# with dummies
 Dat <- Dat_EBcoBART(X = X, CoData = CoDat) #
 X <- Dat$X
 CoData <- Dat$CoData

@@ -2,7 +2,8 @@
 % Please edit documentation in R/EBcoBART_Functions.R
 \name{EBcoBART}
 \alias{EBcoBART}
-\title{Learning prior covariate weights for BART models using empirical Bayes and co-data.}
+\title{Learning prior covariate weights for BART models with empirical Bayes
+and co-data.}
 \usage{
 EBcoBART(
   Y,
@@ -10,7 +11,9 @@ EBcoBART(
   CoData,
   model,
   nIter = 10,
-  EB = FALSE,
+  EB_k = FALSE,
+  EB_alpha = FALSE,
+  EB_sigma = FALSE,
   Prob_Init = c(rep(1/ncol(X), ncol(X))),
   Info = FALSE,
   Seed = TRUE,
@@ -28,78 +31,106 @@ EBcoBART(
 )
 }
 \arguments{
-\item{Y}{Response variable that can be either continuous or binary. Should be a numeric.}
+\item{Y}{Response variable that can be either continuous or binary.
+Should be a numeric.}
 
-\item{X}{Explanatory variables. Should be a matrix. If X is a data.frame and contains
-factors, you may consider the function Dat_EBcoBART}
+\item{X}{Explanatory variables. Should be a matrix. If X is a data.frame and
+contains factors, you may consider the function Dat_EBcoBART}
 
-\item{CoData}{The co-data model matrix with co-data information on explanatory variables in X.
-Should be a matrix, so not a data.frame.
+\item{CoData}{The co-data model matrix with co-data information on
+explanatory variables in X. Should be a matrix, so not a data.frame.
 If grouping information is present, please encode this yourself using dummies
 with dummies representing which group a explanatory variable belongs to.
-The number of rows of the co-data matrix should equal the number of columns of X}
+The number of rows of the co-data matrix should equal the number of columns
+of X}
 
-\item{model}{What type of response variable Y. Can be either continuous or binary}
+\item{model}{What type of response variable Y. Can be either continuous or
+binary}
 
 \item{nIter}{Number of iterations of the EM algorithm}
 
-\item{EB}{Logical (T/F). If true the EM algorithm also estimates prior parameters
-alpha (of tree structure prior) and k (of leaf node parameter prior). Defaults to False.
+\item{EB_k}{Logical (T/F). If true, the EM algorithm also estimates prior
+parameter k (of leaf node parameter prior). Defaults to False.
 Setting to true increases computational time.}
 
-\item{Prob_Init}{Initial vector of splitting probabilities for explanatory variables X.
-Lenght should equal number of columns of X (and number of rows in CoData).
+\item{EB_alpha}{Logical (T/F). If true, the EM algorithm also estimates prior
+parameter alpha (of tree structure prior). Defaults to False.
+Setting to true increases computational time.}
+
+\item{EB_sigma}{Logical (T/F). If true, the EM algorithm also estimates prior
+parameters of the error variance. To do so, the algorithm estimates
+the degrees of freedom (sigdf) and the quantile (sigest) at which sigquant
+of the probability mass is placed. Thus, the specified sigquant is kept fixed
+and sigdf and sigest are updated. Defaults to False.}
+
+\item{Prob_Init}{Initial vector of splitting probabilities for
+explanatory variables X. #' Lenght should equal number of columns of X
+(and number of rows in CoData).
 Defaults to 1/p, i.e. equal weight for each variable.}
 
-\item{Info}{Logical. Asks whether information about the algorithm progress should be printed.
-Defaults to FALSE.}
+\item{Info}{Logical. Asks whether information about the algorithm progress
+should be printed. Defaults to FALSE.}
 
-\item{Seed}{Logical asking whether a seed should be set for reproduciblity. Defaults to TRUE.}
+\item{Seed}{Logical asking whether a seed should be set for reproduciblity.
+Defaults to TRUE.}
 
-\item{ndpost}{Number of posterior samples returned by dbarts after burn-in. Same as in dbarts.
-Defaults to 5000.}
+\item{ndpost}{Number of posterior samples returned by dbarts after burn-in.
+Same as in dbarts. #' Defaults to 5000.}
 
 \item{nskip}{Number of burn-in samples. Same as in dbarts. Defaults to 5000.}
 
-\item{nchain}{Number of independent mcmc chains. Same as in dbarts. Defaults to 5.}
+\item{nchain}{Number of independent mcmc chains. Same as in dbarts.
+Defaults to 5.}
 
 \item{keepevery}{Thinning. Same as in dbarts. Defaults to 1.}
 
-\item{ntree}{Number of trees in the BART model. Same as in dbarts. Defaults to 50.}
+\item{ntree}{Number of trees in the BART model. Same as in dbarts.
+Defaults to 50.}
 
-\item{alpha}{Alpha parameter of tree structure prior. Called base in dbarts. Defaults to 0.95.}
+\item{alpha}{Alpha parameter of tree structure prior. Called base in dbarts.
+Defaults to 0.95.
+If EB_alpha is TRUE, this parameter will be the starting value.}
 
-\item{beta}{Beta parameter of tree structure prior. Called power in dbarts. Defaults to 2.}
+\item{beta}{Beta parameter of tree structure prior. Called power in dbarts.
+Defaults to 2.}
 
-\item{k}{Parameter for leaf node parameter prior. Same as in dbarts. Defaults to 2.}
+\item{k}{Parameter for leaf node parameter prior. Same as in dbarts.
+Defaults to 2. If EB_k is TRUE, this parameter will be the starting value.}
 
 \item{sigest}{Only for continuous response. Estimate of error variance
-used to set inverse gamma prior on error variance. Same as in dbarts. Defaults to 0.667*var(Y)}
+used to set scaled inverse Chi^2 prior on error variance. Same as in dbarts.
+Defaults to 0.667*var(Y). #' If EB_sigma is TRUE, this parameter will be the
+starting value.}
 
-\item{sigdf}{Only for continuous response. Degrees of freedom for error variance prior
-Same as in dbarts. Defaults to 10.}
+\item{sigdf}{Only for continuous response. Degrees of freedom for error
+variance prior. Same as in dbarts. Defaults to 10. If EB_sigma is TRUE,
+this parameter will be the starting value.}
 
-\item{sigquant}{Only for continuous response. Quantile at which sigest is placed Same as in dbarts.
-Defaults to 0.75.}
+\item{sigquant}{Only for continuous response. Quantile at which sigest is
+placed Same as in dbarts. Defaults to 0.75. If EB_sigma is TRUE,
+this parameter will be fixed, only sigdf and sigest will be updated.}
 }
 \value{
-A list object with the estimated variable weights, i.e the probabilities that variables are selected
-in the splitting rules. Additionally, the final co-data model is returned. If EB is set to TRUE, estimates of k and alpha
-are also returned.
-The prior parameter estimates can then be used in your favorite BART R package that supports
-manually setting the splitting variable probability vector (dbarts and BARTMachine).
+A list object with the estimated variable weights,
+i.e the probabilities #' that variables are selected in the splitting rules.
+Additionally, the final co-data model is returned. If EB is set to TRUE,
+estimates of k and/or alpha and/or (sigdf, sigest) are also returned.
+The prior parameter estimates can then be used in your favorite BART R
+package that supports #' manually setting the splitting variable
+probability vector (dbarts and BARTMachine).
 }
 \description{
-Function that estimates the prior probabilities of variables being selected in the splitting rules
-of Bayesian Additive Regression Trees (BART). Estimation is performed using empirical Bayes and co-data,
-i.e. external information on the explanatory variables.
+Function that estimates the prior probabilities of variables being selected
+in the splitting rules of Bayesian Additive Regression Trees (BART).
+Estimation is performed using empirical Bayes and co-data, i.e. external
+information on the explanatory variables.
 }
 \examples{
 ###################################
 ### Continuous response example ###
 ###################################
 
-# Simulate data from Friedman function and define Co-Data as grouping structure
+# Simulate data from Friedman function and define grouped Co-data
 
 sigma <- 1.0
 N <- 100
@@ -107,17 +138,19 @@ p <- 500
 G <- 5   #number of groups
 CoDat = rep(1:G, rep(p/G,G)) # specify grouping structure
 CoDat = data.frame(factor(CoDat))
-CoDat <- stats::model.matrix(~., CoDat) # encode grouping structure by dummies yourself
+CoDat <- stats::model.matrix(~., CoDat) # encode groups  by dummies yourself
 #(include intercept)
 colnames(CoDat)  = paste0("Group ",1:G)
 g <- function(x) {
- 10 * sin(pi * x[,1] * x[,2]) + 20 * (x[,101] - 0.5)^2 + 10 * x[,102] + 10 * x[,3]
+ 10 * sin(pi * x[,1] * x[,2]) + 20 * (x[,101] - 0.5)^2 + 10 * x[,102] +
+ 10 * x[,3]
 }
 X <- matrix(runif(N * p), N, p)#'
 Y <- g(X)+ rnorm(N, 0, sigma)
 
 Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
-                EB = FALSE, Info = TRUE, Seed = TRUE,
+                EB_k = FALSE, EB_alpha = FALSE, EB_sigma = FALSE,
+                Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
                 Prob_Init = rep(1/ncol(X),ncol(X)),
                 k = 2, alpha = .95, beta = 2)
@@ -127,15 +160,15 @@ EstProbs <- Fit$SplittingProbs #estimated prior weights of variables
 # in your favorite BART fitting package
 # We use dbarts:
 
-FinalFit <- dbarts::bart(x.train = X, y.train = Y, # training data
-                        ndpost = 5000, # number of posterior samples
-                        nskip = 5000,  # number of "warmup" samples to discard
-                        nchain = 5,    # number of independent chains
-                        ntree = 50,    # number of trees
-                        k = 2, base = .95, power = 2, # prior parameters tree
-                        sigest = stats::sd(Y)*0.667, #prior error variance
-                        sigdf = 10, sigquant = .75,  #prior error variance
-                        splitprobs = EstProbs,   # prior variable weights
+FinalFit <- dbarts::bart(x.train = X, y.train = Y,
+                        ndpost = 5000,
+                        nskip = 5000,
+                        nchain = 5,
+                        ntree = 50,
+                        k = 2, base = .95, power = 2,
+                        sigest = stats::sd(Y)*0.667,
+                        sigdf = 10, sigquant = .75,
+                        splitprobs = EstProbs,
                         combinechains = TRUE, verbose = FALSE)
 
 ###################################
@@ -153,12 +186,13 @@ Ytr <- dat$Ytrain
 Xte <- as.matrix(dat$Xtest) # Xte should be matrix object
 Yte <- dat$Ytest
 CoDat <- dat$CoData
-CoDat <- stats::model.matrix(~., CoDat) # encode grouping structure by dummies
+CoDat <- stats::model.matrix(~., CoDat) # encode grouping by dummies
 #(include intercept)
 
 
 Fit <- EBcoBART(Y=Ytr,X=Xtr,CoData = CoDat, nIter = 15, model = "binary",
-                EB = TRUE, Info = TRUE, Seed = TRUE,
+                EB_k = TRUE, EB_alpha = TRUE, EB_sigma = FALSE,
+                Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
                 Prob_Init = rep(1/ncol(Xtr),ncol(Xtr)),
                 k = 2, alpha = .95, beta = 2)
@@ -170,14 +204,14 @@ k_EB <- Fit$k_est
 # and k_EB can then be used in your favorite BART fitting package
 # We use dbarts:
 
-FinalFit <- dbarts::bart(x.train = Xtr, y.train = Ytr, # training data
-                         x.test = Xte, # test X for predictions
-                         ndpost = 5000,   # number of posterior samples
-                         nskip = 5000, # number of "warmup" samples to discard
-                         nchain = 5,   # number of independent, parallel chains
-                         ntree = 50,    # number of trees
-                         k = k_EB, base = alpha_EB, power = 2, # prior parameters tree
-                         splitprobs = EstProbs, # prior variable weights
+FinalFit <- dbarts::bart(x.train = Xtr, y.train = Ytr,
+                         x.test = Xte,
+                         ndpost = 5000,
+                         nskip = 5000,
+                         nchain = 5,
+                         ntree = 50,
+                         k = k_EB, base = alpha_EB, power = 2,
+                         splitprobs = EstProbs,
                          combinechains = TRUE, verbose = FALSE)
 
 }
