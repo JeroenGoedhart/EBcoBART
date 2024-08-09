@@ -19,16 +19,17 @@ devtools::install_github("JeroenGoedhart/EBcoBART")
 #install.packages("EBcoBART") (if accepted on CRAN)
 
  # Example
-``` 
-# Simulate data from Friedman function (function g) and define grouped Co-data, i.e.
-# assign each covariate in X to a group.
-# EBcoBART then estimates group specific prior weights. These estimated
-# weights may then be used in a BART sampler (e.g. dbarts).
 
+Simulate data from Friedman function (function g) and define grouped Co-data, i.e.
+assign each covariate in X to a group.
+EBcoBART then estimates group specific prior weights. These estimated
+weights may then be used in a BART sampler (e.g. dbarts).
+
+``` 
 sigma <- 1.0
 N <- 100
 p <- 500
-G <- 5   #number of groups
+G <- 5   # number of groups
 CoDat = rep(1:G, rep(p/G,G)) #specify grouping structure
 CoDat = data.frame(factor(CoDat))
 CoDat <- stats::model.matrix(~., CoDat) #encode groups  by dummies yourself(include intercept)
@@ -45,11 +46,12 @@ Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
                 nchain = 5, nskip = 1000, ndpost = 1000,
                 Prob_Init = rep(1/ncol(X),ncol(X)),
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs #estimated prior weights of variables
-
-#The prior parameter estimate EstProbs can then be used
-#in your favorite BART fitting package
-#We use dbarts:
+EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
+# these weights are group-specific.
+EstProbs[1,101,201,301,401] # check weights for each group
+# The prior parameter estimate EstProbs can then be used
+# in your favorite BART fitting package
+# We use dbarts:
 
 FinalFit <- dbarts::bart(x.train = X, y.train = Y,
                         ndpost = 5000,
