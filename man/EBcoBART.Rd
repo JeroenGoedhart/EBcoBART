@@ -148,23 +148,28 @@ g <- function(x) {
 X <- matrix(runif(N * p), N, p)#'
 Y <- g(X)+ rnorm(N, 0, sigma)
 
-Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
+Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat,
+                nIter = 3,         # Low! Only for illustration
+                model = "continuous",
                 EB_k = FALSE, EB_alpha = FALSE, EB_sigma = FALSE,
                 Info = TRUE, Seed = TRUE,
-                nchain = 5, nskip = 1000, ndpost = 1000,
+                ntree = 50,
+                nchain = 5,
+                nskip = 5000,       # Low! Only for illustration
+                ndpost = 2000,      # Low! Only for illustration
                 Prob_Init = rep(1/ncol(X),ncol(X)),
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs #estimated prior weights of variables
+EstProbs <- Fit$SplittingProbs #estimated prior covariate weights per group
 
 # The prior parameter estimate EstProbs can then be used
 # in your favorite BART fitting package
 # We use dbarts:
 
 FinalFit <- dbarts::bart(x.train = X, y.train = Y,
-                        ndpost = 5000,
-                        nskip = 5000,
-                        nchain = 5,
-                        ntree = 50,
+                        ntree = 5,         # Very low! Only for illustration
+                        nchain = 3,        # Very low! Only for illustration
+                        nskip = 100,       # Very low! Only for illustration
+                        ndpost = 200,      # Very low! Only for illustration
                         k = 2, base = .95, power = 2,
                         sigest = stats::sd(Y)*0.667,
                         sigdf = 10, sigquant = .75,
@@ -190,10 +195,16 @@ CoDat <- stats::model.matrix(~., CoDat) # encode grouping by dummies
 #(include intercept)
 
 
-Fit <- EBcoBART(Y = Ytr, X = Xtr, CoData = CoDat, nIter = 15, model = "binary",
-                EB_k = TRUE, EB_alpha = TRUE, EB_sigma = FALSE,
+Fit <- EBcoBART(Y = Ytr, X = Xtr, CoData = CoDat,
+                nIter = 3,         # very low! Only for illustration
+                model = "binary",
+                EB_k = TRUE, EB_alpha = TRUE,
+                EB_sigma = FALSE,
                 Info = TRUE, Seed = TRUE,
-                nchain = 5, nskip = 1000, ndpost = 1000,
+                ntree = 50,
+                nchain = 5,
+                nskip = 100,       # Very low! Only for illustration
+                ndpost = 200,      # Very low! Only for illustration
                 Prob_Init = rep(1/ncol(Xtr), ncol(Xtr)),
                 k = 2, alpha = .95, beta = 2)
 EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
@@ -206,10 +217,10 @@ k_EB <- Fit$k_est
 
 FinalFit <- dbarts::bart(x.train = Xtr, y.train = Ytr,
                          x.test = Xte,
-                         ndpost = 5000,
-                         nskip = 5000,
-                         nchain = 5,
-                         ntree = 50,
+                         ntree = 5,         # Very low! Only for illustration
+                         nchain = 3,        # Very low! Only for illustration
+                         nskip = 100,       # Very low! Only for illustration
+                         ndpost = 200,      # Very low! Only for illustration
                          k = k_EB, base = alpha_EB, power = 2,
                          splitprobs = EstProbs,
                          combinechains = TRUE, verbose = FALSE)
