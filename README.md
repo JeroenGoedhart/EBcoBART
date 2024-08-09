@@ -18,15 +18,15 @@ devtools::install_github("JeroenGoedhart/EBcoBART")
 #install.packages("EBcoBART") (#if accepted on CRAN)
 
  # Example
-# Simulate data from Friedman function and define grouped Co-data
+#Simulate data from Friedman function and define grouped Co-data
 
 sigma <- 1.0
 N <- 100
 p <- 500
 G <- 5   #number of groups
-CoDat = rep(1:G, rep(p/G,G)) # specify grouping structure
+CoDat = rep(1:G, rep(p/G,G)) #specify grouping structure
 CoDat = data.frame(factor(CoDat))
-CoDat <- stats::model.matrix(~., CoDat) # encode groups  by dummies yourself(include intercept)
+CoDat <- stats::model.matrix(~., CoDat) #encode groups  by dummies yourself(include intercept)
 
 colnames(CoDat)  = paste0("Group ",1:G)
 g <- function(x) {
@@ -44,9 +44,9 @@ Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
                 k = 2, alpha = .95, beta = 2)
 EstProbs <- Fit$SplittingProbs #estimated prior weights of variables
 
-# The prior parameter estimate EstProbs can then be used
-# in your favorite BART fitting package
-# We use dbarts:
+#The prior parameter estimate EstProbs can then be used
+#in your favorite BART fitting package
+#We use dbarts:
 
 FinalFit <- dbarts::bart(x.train = X, y.train = Y,
                         ndpost = 5000,
