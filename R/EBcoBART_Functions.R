@@ -343,14 +343,14 @@ EBcoBART <- function(Y,X,CoData, model,
                                 Please encode dummies yourself")}
 
 
-  if (model == "continuous" && length(unique(Y)) < 3) {
+  if (model == "continuous" & length(unique(Y)) < 3) {
     stop("Y has less than 3 distinct values
          while model = continuous is specified")}
-  if (model == "binary" && !all(Y == 1 || Y == 0)) {
+  if (model == "binary" & !all(Y == 1 | Y == 0)) {
     stop("Binary model, specify binary response as numeric coded with 0 and 1")}
   if(ncol(X) != nrow(CoData)) {
     stop("number of columns of X should equal number of rows of CoData")}
-  if(!all(Prob_Init > 0 && Prob_Init < 1)) {
+  if(!all(Prob_Init > 0 & Prob_Init < 1)) {
     stop("All prior splitting probabilities in Prob_Init
          should be between 0 and 1")}
   if(base::sum(Prob_Init) != 1) {stop("Sum of Prob_Init should equal 1")}
@@ -448,7 +448,7 @@ EBcoBART <- function(Y,X,CoData, model,
           cat("\n","Check convergence of mcmc chains")
         }
 
-        samps<-matrix(fit$sigma, nrow = ndpost,v ncol = nchain, byrow = TRUE)
+        samps<-matrix(fit$sigma, nrow = ndpost, ncol = nchain, byrow = TRUE)
         Rhat <- .MCMC_convergence(samps)
 
         if(Rhat < 1.1){

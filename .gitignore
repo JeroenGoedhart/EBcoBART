@@ -1,3 +1,14 @@
 .Rproj.user
+.Rproj.user/
 .Rhistory
 .Rapp.history
+.RData
+.Ruserdata
+*-Ex.R
+/*.tar.gz
+/*.Rcheck/
+vignettes/*.html
+vignettes/*.pdf
+.httr-oauth
+*_cache/
+/cache/
