@@ -44,15 +44,17 @@ Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "continuous",
                 EB_k = FALSE, EB_alpha = FALSE, EB_sigma = FALSE, #asks whether these prior parameters should be estimated by EB
                 Info = TRUE, Seed = TRUE,
                 nchain = 5, nskip = 1000, ndpost = 1000,
-                Prob_Init = rep(1/ncol(X),ncol(X)),
+                Prob_Init = rep(1/ncol(X),ncol(X)), # initial prior covariate weights
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
-# these weights are group-specific.
+                
+EstProbs <- Fit$SplittingProbs # estimated prior weights of variables (group-specific)
 EstProbs[1,101,201,301,401] # check weights for each group
-# The prior parameter estimate EstProbs can then be used
-# in your favorite BART fitting package
-# We use dbarts:
+```
 
+The prior parameter estimate EstProbs can then be used
+in your favorite BART fitting package. We use dbarts:
+
+```
 FinalFit <- dbarts::bart(x.train = X, y.train = Y,
                         ndpost = 5000,
                         nskip = 5000,
