@@ -8,15 +8,14 @@ and co-data.}
 EBcoBART(
   Y,
   X,
-  CoData,
   model,
+  CoData,
   nIter = 10,
   EB_k = FALSE,
   EB_alpha = FALSE,
   EB_sigma = FALSE,
   Prob_Init = c(rep(1/ncol(X), ncol(X))),
-  Info = FALSE,
-  Seed = TRUE,
+  verbose = FALSE,
   ndpost = 5000,
   nskip = 5000,
   nchain = 5,
@@ -37,15 +36,16 @@ Should be a numeric.}
 \item{X}{Explanatory variables. Should be a matrix. If X is a data.frame and
 contains factors, you may consider the function Dat_EBcoBART}
 
+\item{model}{What type of response variable Y. Can be either continuous or
+binary}
+
 \item{CoData}{The co-data model matrix with co-data information on
 explanatory variables in X. Should be a matrix, so not a data.frame.
 If grouping information is present, please encode this yourself using dummies
 with dummies representing which group a explanatory variable belongs to.
 The number of rows of the co-data matrix should equal the number of columns
-of X}
-
-\item{model}{What type of response variable Y. Can be either continuous or
-binary}
+of X. If no CoData is available, but one aims to estimate either prior para-
+meter k, alpha or sigma, please specify CoData == NULL.}
 
 \item{nIter}{Number of iterations of the EM algorithm}
 
@@ -68,14 +68,11 @@ explanatory variables X. #' Length should equal number of columns of X
 (and number of rows in CoData).
 Defaults to 1/p, i.e. equal weight for each variable.}
 
-\item{Info}{Logical. Asks whether information about the algorithm progress
+\item{verbose}{Logical. Asks whether algorithm progress
 should be printed. Defaults to FALSE.}
 
-\item{Seed}{Logical asking whether a seed should be set for reproducibility.
-Defaults to TRUE.}
-
 \item{ndpost}{Number of posterior samples returned by dbarts after burn-in.
-Same as in dbarts. #' Defaults to 5000.}
+Same as in dbarts. Defaults to 5000.}
 
 \item{nskip}{Number of burn-in samples. Same as in dbarts. Defaults to 5000.}
 
@@ -127,59 +124,9 @@ information on the explanatory variables.
 }
 \examples{
 ###################################
-### Continuous response example ###
-###################################
-
-# Simulate data from Friedman function and define grouped Co-data
-
-sigma <- 1.0
-N <- 100
-p <- 500
-G <- 5   #number of groups
-CoDat = rep(1:G, rep(p/G,G)) # specify grouping structure
-CoDat = data.frame(factor(CoDat))
-CoDat <- stats::model.matrix(~., CoDat) # encode groups  by dummies yourself
-#(include intercept)
-colnames(CoDat)  = paste0("Group ",1:G)
-g <- function(x) {
- 10 * sin(pi * x[,1] * x[,2]) + 20 * (x[,101] - 0.5)^2 + 10 * x[,102] +
- 10 * x[,3]
-}
-X <- matrix(runif(N * p), N, p)#'
-Y <- g(X)+ rnorm(N, 0, sigma)
-
-Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat,
-                nIter = 3,         # Low! Only for illustration
-                model = "continuous",
-                EB_k = FALSE, EB_alpha = FALSE, EB_sigma = FALSE,
-                Info = TRUE, Seed = TRUE,
-                ntree = 50,
-                nchain = 5,
-                nskip = 5000,       # Low! Only for illustration
-                ndpost = 2000,      # Low! Only for illustration
-                Prob_Init = rep(1/ncol(X),ncol(X)),
-                k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs #estimated prior covariate weights per group
-
-# The prior parameter estimate EstProbs can then be used
-# in your favorite BART fitting package
-# We use dbarts:
-
-FinalFit <- dbarts::bart(x.train = X, y.train = Y,
-                        ntree = 5,         # Very low! Only for illustration
-                        nchain = 3,        # Very low! Only for illustration
-                        nskip = 100,       # Very low! Only for illustration
-                        ndpost = 200,      # Very low! Only for illustration
-                        k = 2, base = .95, power = 2,
-                        sigest = stats::sd(Y)*0.667,
-                        sigdf = 10, sigquant = .75,
-                        splitprobs = EstProbs,
-                        combinechains = TRUE, verbose = FALSE)
-
-###################################
 ### Binary response example ######
 ###################################
-
+# For continuous response example, see README.
 # Use data set provided in R package
 # We set EB=T indicating that we also estimate
 # tree structure prior parameter alpha
@@ -194,22 +141,24 @@ CoDat <- dat$CoData
 CoDat <- stats::model.matrix(~., CoDat) # encode grouping by dummies
 #(include intercept)
 
-
+set.seed(4) # for reproducible results
 Fit <- EBcoBART(Y = Ytr, X = Xtr, CoData = CoDat,
-                nIter = 3,         # very low! Only for illustration
+                nIter = 2,         # Low! Only for illustration
                 model = "binary",
                 EB_k = TRUE, EB_alpha = TRUE,
                 EB_sigma = FALSE,
-                Info = TRUE, Seed = TRUE,
-                ntree = 50,
-                nchain = 5,
-                nskip = 100,       # Very low! Only for illustration
-                ndpost = 200,      # Very low! Only for illustration
+                verbose = TRUE,
+                ntree = 5,         # Low! Only for illustration
+                nchain = 3,
+                nskip = 500,       # Low! Only for illustration
+                ndpost = 500,      # Low! Only for illustration
                 Prob_Init = rep(1/ncol(Xtr), ncol(Xtr)),
                 k = 2, alpha = .95, beta = 2)
-EstProbs <- Fit$SplittingProbs # estimated prior weights of variables
+EstProbs <- Fit$SplitProbs # estimated prior weights of variables
 alpha_EB <- Fit$alpha_est
 k_EB <- Fit$k_est
+print(Fit)
+summary(Fit)
 
 # The prior parameter estimates EstProbs, alpha_EB,
 # and k_EB can then be used in your favorite BART fitting package
@@ -217,10 +166,10 @@ k_EB <- Fit$k_est
 
 FinalFit <- dbarts::bart(x.train = Xtr, y.train = Ytr,
                          x.test = Xte,
-                         ntree = 5,         # Very low! Only for illustration
-                         nchain = 3,        # Very low! Only for illustration
-                         nskip = 100,       # Very low! Only for illustration
-                         ndpost = 200,      # Very low! Only for illustration
+                         ntree = 5,         # Low! Only for illustration
+                         nchain = 3,        # Low! Only for illustration
+                         nskip = 200,       # Low! Only for illustration
+                         ndpost = 200,      # Low! Only for illustration
                          k = k_EB, base = alpha_EB, power = 2,
                          splitprobs = EstProbs,
                          combinechains = TRUE, verbose = FALSE)

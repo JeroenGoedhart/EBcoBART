@@ -16,7 +16,7 @@ explanatory variables in X. Should be a matrix, so not a data.frame.
 If grouping information is present, please encode this yourself using dummies
 with dummies representing which group a explanatory variable belongs to.
 The number of rows of the co-data matrix should equal the number
-of columns of X}
+of columns of X.}
 }
 \value{
 A list object with X: the explanatory variables with factors encoded
