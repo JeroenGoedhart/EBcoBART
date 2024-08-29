@@ -46,8 +46,8 @@ be used in a BART sampler (e.g. dbarts).
                     Prob_Init = rep(1/ncol(X),ncol(X)), # initial prior covariate weights
                     k = 2, alpha = .95, beta = 2)
                     
-    EstProbs <- Fit$SplittingProbs # estimated prior weights of variables (group-specific)
-    EstProbs[1,101,201,301,401] # check weights for each group
+    EstProbs <- Fit$SplitProbs # estimated prior weights of variables (group-specific)
+    EstProbs[c(1,101,201,301,401)] # check weights for each group
     print(Fit)
     summary(Fit)
 
