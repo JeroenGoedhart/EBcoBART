@@ -2,7 +2,7 @@ citHeader("To cite EBcoBART in publications, please use:")
 
 bibentry(
   bibtype  = "Article",
-  title = "Bayesian additive regression trees with co-data-based variable inclusion probabilities",
+  title = "Adaptive Use of Co-Data Through Empirical Bayes for Bayesian Additive Regression Trees",
   author = c(
     person("Jeroen M.", "Goedhart", role = c("aut", "cre")),
     person("Thomas", "Klausch"),
