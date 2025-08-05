@@ -1,6 +1,6 @@
 Package: EBcoBART
 Title: Co-Data Learning for Bayesian Additive Regression Trees
-Version: 1.0.1
+Version: 1.1.2
 Authors@R: 
     c(person(c("Jeroen", "M."), "Goedhart", , "jeroengoed@gmail.com", role = c("aut", "cre", "cph"),
       comment = c(ORCID = "0000-0003-0134-1897")),
@@ -14,18 +14,19 @@ Description: Estimate prior variable weights for Bayesian Additive Regression
     Weights are estimated using empirical Bayes and external information on 
     the explanatory variables (co-data).
     BART models are fitted using the 'dbarts' 'R' package.
-    See Goedhart and others (2023) <doi:10.48550/arXiv.2311.09997> for details.
+    See Goedhart and others (2023) <doi:10.1002/sim.70004> for details.
 License: GPL (>= 3)
 Encoding: UTF-8
 URL: https://github.com/JeroenGoedhart/EBcoBART
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     dbarts,
     loo,
     posterior,
     univariateML,
-    extraDistr
+    extraDistr,
+    graphics
 Depends: 
     R (>= 2.10)
 LazyData: true

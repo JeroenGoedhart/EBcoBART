@@ -1,0 +1,30 @@
+citHeader("To cite EBcoBART in publications, please use:")
+
+bibentry(
+  bibtype  = "Article",
+  title = "Bayesian additive regression trees with co-data-based variable inclusion probabilities",
+  author = c(
+    person("Jeroen M.", "Goedhart", role = c("aut", "cre")),
+    person("Thomas", "Klausch"),
+    person("Jurriaan", "Janssen"),
+    person("Mark A.", "van de Wiel")
+  ),
+  year = "2025",
+  journal = "Statistics in Medicine",
+  volume = "42",
+  pages = "e70004",
+  doi = "10.1002/sim.70004"
+)
+
+bibentry(
+  "Manual",
+  title = "EBcoBART: Co-Data Learning for Bayesian Additive Regression Trees",
+  author = c(
+    person("Jeroen M.", "Goedhart", role = c("aut", "cre")),
+    person("Thomas", "Klausch"),
+    person("Mark A.", "van de Wiel")
+  ),
+  year = "2025",
+  note = "R package version 1.1.2",
+  url = "https://CRAN.R-project.org/package=dbarts"
+)

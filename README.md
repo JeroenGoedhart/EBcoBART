@@ -13,11 +13,9 @@ option to estimate other hyperparameters of BART using empirical Bayes.
 
 # Installation
 
-    #install.packages("devtools")
-    devtools::install_github("JeroenGoedhart/EBcoBART")
-    #install.packages("EBcoBART") (if accepted on CRAN)
+    install.packages("EBcoBART") 
 
-# Example
+# Example 1
 
 Simulate data from Friedman function (function g) and define grouped
 Co-data, i.e. assign each covariate in X to a group. EBcoBART then
@@ -50,6 +48,40 @@ be used in a BART sampler (e.g. dbarts).
     EstProbs[c(1,101,201,301,401)] # check weights for each group
     print(Fit)
     summary(Fit)
+
+The prior parameter estimate EstProbs can then be used in your favorite
+BART fitting package. We use dbarts:
+
+    FinalFit <- dbarts::bart(x.train = X, y.train = Y,
+                            ndpost = 5000,
+                            nskip = 5000,
+                            nchain = 5,
+                            ntree = 50,
+                            k = 2, base = .95, power = 2,
+                            sigest = stats::sd(Y)*0.667,
+                            sigdf = 10, sigquant = .75,
+                            splitprobs = EstProbs,
+                            combinechains = TRUE, verbose = FALSE)
+
+# Example 2
+
+Binary response example using Bloodplatelet data set.
+
+    data("Bloodplatelet")
+    X <- Bloodplatelet$X
+    Y <- Bloodplatelet$Y
+    CoDat <- Bloodplatelet$CoData
+    Fit <- EBcoBART(Y=Y,X=X,CoData = CoDat, nIter = 15, model = "binary",
+                    EB_k = FALSE, EB_alpha = FALSE, EB_sigma = FALSE, #EB estimation
+                    verbose = FALSE,
+                    nchain = 5, nskip = 1000, ndpost = 1000,
+                    Prob_Init = rep(1/ncol(X),ncol(X)), # initial prior covariate weights
+                    k = 2, alpha = .95, beta = 2)
+                    
+    EstProbs <- Fit$SplitProbs # estimated prior weights of variables (group-specific)
+    print(Fit)
+    summary(Fit)
+    plot(Fit)
 
 The prior parameter estimate EstProbs can then be used in your favorite
 BART fitting package. We use dbarts:

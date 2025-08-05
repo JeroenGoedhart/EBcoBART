@@ -64,7 +64,7 @@ of the probability mass is placed. Thus, the specified sigquant is kept fixed
 and sigdf and sigest are updated. Defaults to False.}
 
 \item{Prob_Init}{Initial vector of splitting probabilities for
-explanatory variables X. #' Length should equal number of columns of X
+explanatory variables X. Length should equal number of columns of X
 (and number of rows in CoData).
 Defaults to 1/p, i.e. equal weight for each variable.}
 
@@ -96,7 +96,7 @@ Defaults to 2. If EB_k is TRUE, this parameter will be the starting value.}
 
 \item{sigest}{Only for continuous response. Estimate of error variance
 used to set scaled inverse Chi^2 prior on error variance. Same as in dbarts.
-Defaults to 0.667*var(Y). #' If EB_sigma is TRUE, this parameter will be the
+Defaults to 0.667*var(Y). If EB_sigma is TRUE, this parameter will be the
 starting value.}
 
 \item{sigdf}{Only for continuous response. Degrees of freedom for error
@@ -108,12 +108,18 @@ placed Same as in dbarts. Defaults to 0.75. If EB_sigma is TRUE,
 this parameter will be fixed, only sigdf and sigest will be updated.}
 }
 \value{
-A list object with the estimated variable weights,
-i.e the probabilities #' that variables are selected in the splitting rules.
+An object with the estimated variable weights,
+i.e the probabilities that variables are selected in the splitting rules.
 Additionally, the final co-data model is returned. If EB is set to TRUE,
 estimates of k and/or alpha and/or (sigdf, sigest) are also returned.
+The returned object is of class S3 for which print(), summary(), and plot()
+are available. Function print() prints convergence details of the algorithm,
+summary() prints prior parameter estimates of EBcoBART, and plot() plots the
+estimated prior variable weights (including vertical line for equal variable
+weights).
+
 The prior parameter estimates can then be used in your favorite BART R
-package that supports #' manually setting the splitting variable
+package that supports manually setting the splitting variable
 probability vector (dbarts and BARTMachine).
 }
 \description{
@@ -128,16 +134,16 @@ information on the explanatory variables.
 ###################################
 # For continuous response example, see README.
 # Use data set provided in R package
-# We set EB=T indicating that we also estimate
+# We set EB = T indicating that we also estimate
 # tree structure prior parameter alpha
 # and leaf node prior parameter k
 
-data(dat)
-Xtr <- as.matrix(dat$Xtrain) # Xtr should be matrix object
-Ytr <- dat$Ytrain
-Xte <- as.matrix(dat$Xtest) # Xte should be matrix object
-Yte <- dat$Ytest
-CoDat <- dat$CoData
+data("Lymphoma")
+Xtr <- as.matrix(Lymphoma$Xtrain) # Xtr should be matrix object
+Ytr <- Lymphoma$Ytrain
+Xte <- as.matrix(Lymphoma$Xtest) # Xte should be matrix object
+Yte <- Lymphoma$Ytest
+CoDat <- Lymphoma$CoData
 CoDat <- stats::model.matrix(~., CoDat) # encode grouping by dummies
 #(include intercept)
 
